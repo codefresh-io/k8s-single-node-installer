@@ -1,0 +1,120 @@
+#!/bin/bash
+
+os_type() {
+	cat /etc/*-release | grep '^NAME' | tr -d 'NAME="'
+}
+
+exists() {
+	if command -v $1 >/dev/null 2>&1; then
+		echo "Command $1 installed"
+	else
+		echo "Please install $1"
+		exit 1
+	fi
+}
+
+running_as_root() {
+	if [[ $EUID > 0 ]]; then
+  	echo "Please run as root/sudo"
+  	exit 1
+	fi
+}
+
+enable_bridge_iptables() {
+	if [ "$(cat /proc/sys/net/bridge/bridge-nf-call-iptables)" == "0" ]; then
+		echo "1" > /proc/sys/net/bridge/bridge-nf-call-iptables
+	fi
+}
+
+change_cgroup_driver() {
+	if [ -e /etc/docker/daemon.json ]; then
+		cat << EOF
+Please enable the `native.cgroupdriver=systemd` exec option in docker's daemon configuration!
+
+Without this configuration, kubelet service won't be able to start.
+
+EOF
+	else
+		cat << EOF > /etc/docker/daemon.json
+{
+	"exec-opts": ["native.cgroupdriver=systemd"]
+}
+EOF
+	systemctl restart docker
+	fi
+}
+
+package_ubuntu() {
+	apt-get update && apt-get install -y apt-transport-https
+	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+	cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+	apt-get update
+	apt-get install -y kubelet kubeadm
+}
+
+package_centos() {
+	cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+	setenforce 0
+	yum install -y kubelet kubeadm
+	systemctl enable kubelet && systemctl start kubelet
+}
+
+# Phase 1 - Pre-flight checks
+
+# 1. Are we running as root or sudo?
+running_as_root
+
+# 2. Docker exists?
+exists "docker"
+
+# 3. Nsenter utility exists?
+exists "nsenter"
+
+# Phase 2 - install kubernetes and kubeadm packages
+case "$(os_type)" in
+	*Ubuntu*)
+		package_ubuntu
+		;;
+	*CentOS*)
+		enable_bridge_iptables
+		change_cgroup_driver
+		package_centos
+		;;
+	*)
+		fail
+		;;
+esac
+
+# Phase 3 - initialize the Kubernetes cluster
+kubeadm init --pod-network-cidr=10.244.0.0/16 | grep -P '^\[' --color=never
+
+# Remove master taints to make master schedulable for pods
+kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all dedicated-
+kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all node-role.kubernetes.io/master-
+
+# Install networking. Even in single-node mode, before the master node will become
+# available for scheduling (Ready), it should detect a network plugin configuration.
+kubectl --kubeconfig /etc/kubernetes/admin.conf create -f flannel.yml
+
+cat << END
+Your single-node Kubernetes cluster has initialized successfully!"
+
+To start using your cluster, you need to run (as a regular user):
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+END
+
