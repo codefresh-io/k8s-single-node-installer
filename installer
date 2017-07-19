@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Global env variables / defaults
+: ${KUBERNETES_VERSION:=stable-1.7}
+
+# Functions library
 os_type() {
 	cat /etc/*-release | grep '^NAME' | tr -d 'NAME="'
 }
@@ -26,7 +30,25 @@ enable_bridge_iptables() {
 	fi
 }
 
-change_cgroup_driver() {
+config_docker_ubuntu() {
+	if [ -e /etc/docker/daemon.json ]; then
+		cat << EOF
+Please set the `storage-driver: overlay` option in docker's daemon configuration!
+
+Without this configuration, kubelet service won't be able to start.
+
+EOF
+	else
+		cat << EOF > /etc/docker/daemon.json
+{
+	"storage-driver": "overlay"
+}
+EOF
+	systemctl restart docker
+	fi
+}
+
+config_docker_centos() {
 	if [ -e /etc/docker/daemon.json ]; then
 		cat << EOF
 Please enable the `native.cgroupdriver=systemd` exec option in docker's daemon configuration!
@@ -37,7 +59,8 @@ EOF
 	else
 		cat << EOF > /etc/docker/daemon.json
 {
-	"exec-opts": ["native.cgroupdriver=systemd"]
+	"exec-opts": ["native.cgroupdriver=systemd"],
+	"storage-driver": "overlay"
 }
 EOF
 	systemctl restart docker
@@ -51,7 +74,8 @@ package_ubuntu() {
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 	apt-get update
-	apt-get install -y kubelet kubeadm
+	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
+	apt-get install -y kubelet kubeadm=1.7.0-00
 }
 
 package_centos() {
@@ -66,7 +90,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
         https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 	setenforce 0
-	yum install -y kubelet kubeadm
+	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
+	yum install -y kubelet kubeadm-1.7.0-0
 	systemctl enable kubelet && systemctl start kubelet
 }
 
@@ -84,11 +109,12 @@ exists "nsenter"
 # Phase 2 - install kubernetes and kubeadm packages
 case "$(os_type)" in
 	*Ubuntu*)
+		config_docker_ubuntu
 		package_ubuntu
 		;;
 	*CentOS*)
 		enable_bridge_iptables
-		change_cgroup_driver
+		config_docker_centos
 		package_centos
 		;;
 	*)
@@ -96,8 +122,23 @@ case "$(os_type)" in
 		;;
 esac
 
+# Enable alpha APIs
+cat <<EOF >/etc/kubernetes/kubeadm.conf
+apiVersion: kubeadm.k8s.io/v1alpha1
+kind: MasterConfiguration
+kubernetesVersion: "$KUBERNETES_VERSION"
+networking:
+  podSubnet: 10.244.0.0/16
+apiServerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+controllerManagerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+schedulerExtraArgs:
+  "feature-gates": "AffinityInAnnotations=true"
+EOF
+
 # Phase 3 - initialize the Kubernetes cluster
-kubeadm init --pod-network-cidr=10.244.0.0/16 | grep -P '^\[' --color=never
+kubeadm init --config /etc/kubernetes/kubeadm.conf | grep -P '^\[' --color=never
 
 # Remove master taints to make master schedulable for pods
 kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all dedicated-
@@ -106,6 +147,16 @@ kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all node-role.kube
 # Install networking. Even in single-node mode, before the master node will become
 # available for scheduling (Ready), it should detect a network plugin configuration.
 kubectl --kubeconfig /etc/kubernetes/admin.conf create -f flannel.yml
+
+# TODO: Move the addons such as the provisioner to the helm package
+# Grant admin permissions to the default serviceaccount in the codefresh namespace
+kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace codefresh
+kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding codefresh-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=codefresh:default
+
+# Create the host-path pvc provisioner
+# Starting from Kubernetes version 1.7, a local provisioner plugin is supported, however it's still in alpha.
+kubectl --kubeconfig /etc/kubernetes/admin.conf --namespace codefresh create -f local-storage.yml
+mkdir -p /var/local-volume-provisioner/disks/{1..20}
 
 cat << END
 Your single-node Kubernetes cluster has initialized successfully!"

@@ -19,6 +19,7 @@ plane components will start properly.
 ```
 curl -L https://github.com/codefresh-io/k8s-single-node-installer/archive/master.tar.gz | tar xvz
 cd k8s-single-node-installer-master
+sudo chmod +x installer
 sudo ./installer
 ```
 

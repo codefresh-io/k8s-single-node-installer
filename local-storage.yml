@@ -1,0 +1,57 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: local-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: local-volume-provisioner
+
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: local-volume-provisioner
+spec:
+  template:
+    metadata:
+      labels:
+        app: local-volume-provisioner
+    spec:
+      containers:
+      - name: provisioner
+        image: "quay.io/external_storage/local-volume-provisioner:latest"
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: discovery-vol
+          mountPath: "/local-disks"
+        env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: VOLUME_CONFIG_NAME
+          value: "local-volume-provisioner-config"
+      volumes:
+      - name: discovery-vol
+        hostPath:
+          path: "/var/local-volume-provisioner/disks/"
+      serviceAccount: default
+
+---
+kind: ConfigMap
+metadata:
+  name: local-volume-provisioner-config
+data:
+  "local-storage": |
+    {
+      "hostDir": "/var/local-volume-provisioner/disks",
+      "mountDir": "/local-disks"
+    }
+
