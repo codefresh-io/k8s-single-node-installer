@@ -25,3 +25,26 @@ sudo ./installer
 
 You can check the progress with `docker ps` and `journal -fu kubelet` commands.
 
+# Development
+
+For testing and development purposes, first run the relevant Vagrant machine:
+
+```
+export VAGRANT_VAGRANTFILE=vagrant/Vagrantfile.ubuntu16
+vagrant up
+```
+
+This will start a machine that match one of the supported OS and install a
+Docker daemon into it.
+
+When vagrant will finish provisioning the machine, ssh into it with `vagrant
+ssh` and run:
+
+```
+sudo ./installer
+sudo ./boot-cf-on-vagrant
+```
+
+**NOTE** Before running the boot command, make sure that you copied the
+ `keyfile.json` file to the default vagrant user's home directory.
+

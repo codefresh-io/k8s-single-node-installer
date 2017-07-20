@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if [ ! -f keyfile.json ]; then
+	echo "Didn't find the registry key file"
+	exit 1
+fi
+
+docker login -u _json_key -p "$(cat keyfile.json)" https://gcr.io
+
+docker run -i --entrypoint /bin/bash -v /etc/kubernetes/admin.conf:/root/.kube/config gcr.io/codefresh-enterprise/cf-install:latest -s <<EOF
+sed -i 's/[0-9]\+Gi/5Gi/g' assets/*pvc*
+./docker-install --url 192.168.33.10
+EOF
+
