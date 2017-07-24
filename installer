@@ -31,40 +31,22 @@ enable_bridge_iptables() {
 }
 
 config_docker_ubuntu() {
-	if [ -e /etc/docker/daemon.json ]; then
-		cat << EOF
-Please set the `storage-driver: overlay` option in docker's daemon configuration!
-
-Without this configuration, kubelet service won't be able to start.
-
-EOF
-	else
-		cat << EOF > /etc/docker/daemon.json
+	cat << EOF > /etc/docker/daemon.json
 {
 	"storage-driver": "overlay"
 }
 EOF
 	systemctl restart docker
-	fi
 }
 
 config_docker_centos() {
-	if [ -e /etc/docker/daemon.json ]; then
-		cat << EOF
-Please enable the `native.cgroupdriver=systemd` exec option in docker's daemon configuration!
-
-Without this configuration, kubelet service won't be able to start.
-
-EOF
-	else
-		cat << EOF > /etc/docker/daemon.json
+	cat << EOF > /etc/docker/daemon.json
 {
 	"exec-opts": ["native.cgroupdriver=systemd"],
 	"storage-driver": "overlay"
 }
 EOF
 	systemctl restart docker
-	fi
 }
 
 package_ubuntu() {
