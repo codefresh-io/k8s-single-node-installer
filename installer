@@ -94,7 +94,7 @@ case "$(os_type)" in
 		config_docker_ubuntu
 		package_ubuntu
 		;;
-	*CentOS*)
+	*CentOS*|*Red*)
 		enable_bridge_iptables
 		config_docker_centos
 		package_centos
@@ -141,13 +141,13 @@ kubectl --kubeconfig /etc/kubernetes/admin.conf --namespace codefresh create -f 
 mkdir -p /var/local-volume-provisioner/disks/{1..20}
 
 cat << END
-Your single-node Kubernetes cluster has initialized successfully!"
+'Your single-node Kubernetes cluster has initialized successfully!"
 
 To start using your cluster, you need to run (as a regular user):
 
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config'
 
 END
 
