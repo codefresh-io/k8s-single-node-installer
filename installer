@@ -77,6 +77,36 @@ EOF
 	systemctl enable kubelet && systemctl start kubelet
 }
 
+rhel_iptables(){
+  setenforce 0
+  yum install iptables-services.x86_64 -y
+  systemctl start iptables
+  systemctl enable iptables
+  systemctl unmask iptables
+  iptables -F
+  service iptables save
+}
+
+check_iptables(){
+
+  if command -v iptables >/dev/null 2>&1; then
+    echo "iptables installed"
+  else
+		echo "iptables is not installed"
+		read -p "Do you want to install iptables (y/n)" yn
+		case ${yn} in
+      y|Y )
+          rhel_iptables
+      ;;
+      * )
+          echo "k8s can't run without iptables, please install it manually"
+          exit 1
+      ;;
+    esac
+	fi
+
+}
+
 # Phase 1 - Pre-flight checks
 
 # 1. Are we running as root or sudo?
@@ -88,17 +118,24 @@ exists "docker"
 # 3. Nsenter utility exists?
 exists "nsenter"
 
+
 # Phase 2 - install kubernetes and kubeadm packages
 case "$(os_type)" in
 	*Ubuntu*)
 		config_docker_ubuntu
 		package_ubuntu
 		;;
-	*CentOS*|*Red*)
+	*CentOS*)
 		enable_bridge_iptables
 		config_docker_centos
 		package_centos
 		;;
+  *Red*)
+    check_iptables
+    enable_bridge_iptables
+    config_docker_centos
+    package_centos
+  ;;
 	*)
 		fail
 		;;
@@ -140,14 +177,14 @@ kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding codefr
 kubectl --kubeconfig /etc/kubernetes/admin.conf --namespace codefresh create -f local-storage.yml
 mkdir -p /var/local-volume-provisioner/disks/{1..20}
 
-cat << END
-'Your single-node Kubernetes cluster has initialized successfully!"
+cat << 'END'
+Your single-node Kubernetes cluster has initialized successfully!
 
 To start using your cluster, you need to run (as a regular user):
 
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config'
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 END
 
