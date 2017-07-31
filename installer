@@ -130,11 +130,11 @@ case "$(os_type)" in
 		config_docker_centos
 		package_centos
 		;;
-  *Red*)
-    check_iptables
-    enable_bridge_iptables
-    config_docker_centos
-    package_centos
+	*Red*)
+		check_iptables
+		enable_bridge_iptables
+		config_docker_centos
+		package_centos
   ;;
 	*)
 		fail
