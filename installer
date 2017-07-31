@@ -135,7 +135,7 @@ case "$(os_type)" in
 		enable_bridge_iptables
 		config_docker_centos
 		package_centos
-  ;;
+		;;
 	*)
 		fail
 		;;
