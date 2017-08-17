@@ -171,6 +171,7 @@ kubectl --kubeconfig /etc/kubernetes/admin.conf create -f flannel.yml
 # Grant admin permissions to the default serviceaccount in the codefresh namespace
 kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace codefresh
 kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding codefresh-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=codefresh:default
+kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding kuse-system-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 
 # Create the host-path pvc provisioner
 # Starting from Kubernetes version 1.7, a local provisioner plugin is supported, however it's still in alpha.
