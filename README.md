@@ -42,9 +42,10 @@ ssh` and run:
 
 ```
 sudo ./installer
-sudo ./boot-cf-on-vagrant
+export KUBECONFIG=/etc/kubernetes/admin.conf 
+sudo -E ./cf-helm
 ```
 
-**NOTE** Before running the boot command, make sure that you copied the
- `keyfile.json` file to the default vagrant user's home directory.
+**IMPORTANT** make sure that you have filled in the secrets in `values.yml`
+ file before running the `cf-helm` command.
 

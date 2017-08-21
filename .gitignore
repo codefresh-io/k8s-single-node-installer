@@ -1,2 +1,4 @@
 .vagrant
 keyfile.json
+values.yml.secret
+

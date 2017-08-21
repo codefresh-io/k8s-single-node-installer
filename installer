@@ -160,32 +160,33 @@ EOF
 kubeadm init --config /etc/kubernetes/kubeadm.conf | grep -P '^\[' --color=never
 
 # Remove master taints to make master schedulable for pods
-kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all dedicated-
-kubectl --kubeconfig /etc/kubernetes/admin.conf taint nodes --all node-role.kubernetes.io/master-
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+kubectl taint nodes --all dedicated-
+kubectl taint nodes --all node-role.kubernetes.io/master-
 
 # Install networking. Even in single-node mode, before the master node will become
 # available for scheduling (Ready), it should detect a network plugin configuration.
-kubectl --kubeconfig /etc/kubernetes/admin.conf create -f flannel.yml
+kubectl create -f flannel.yml
 
 # TODO: Move the addons such as the provisioner to the helm package
 # Grant admin permissions to the default serviceaccount in the codefresh namespace
-kubectl --kubeconfig /etc/kubernetes/admin.conf create namespace codefresh
-kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding codefresh-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=codefresh:default
-kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding kuse-system-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
+kubectl create namespace codefresh
+kubectl create clusterrolebinding codefresh-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=codefresh:default
+kubectl create clusterrolebinding kube-system-default-cluster-admin --clusterrole=cluster-admin --serviceaccount=kube-system:default
 
 # Create the host-path pvc provisioner
 # Starting from Kubernetes version 1.7, a local provisioner plugin is supported, however it's still in alpha.
-kubectl --kubeconfig /etc/kubernetes/admin.conf --namespace codefresh create -f local-storage.yml
+kubectl --namespace codefresh create -f local-storage.yml
 mkdir -p /var/local-volume-provisioner/disks/{1..20}
 
 cat << 'END'
 Your single-node Kubernetes cluster has initialized successfully!
 
-To start using your cluster, you need to run (as a regular user):
+To connect to the cluster using the kubectl utility, export the KUBECONFIG variable:
 
-  mkdir -p $HOME/.kube
-  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+export KUBECONFIG=/etc/kubernetes/admin.conf
 
 END
+
 

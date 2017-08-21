@@ -1,0 +1,10 @@
+---
+dockercfg:
+firebaseSecret:
+
+ingress:
+  domain:
+
+global:
+  appUrl:
+

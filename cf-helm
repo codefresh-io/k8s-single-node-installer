@@ -1,0 +1,52 @@
+#!/bin/bash
+
+readonly WD=$(dirname "$0")
+
+readonly HELM_VERSION=2.5.1
+readonly CODEFRESH_REPOSITORY=http://codefresh-helm-charts.s3-website-us-east-1.amazonaws.com/
+readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
+
+running_as_root() {
+	if [[ $EUID > 0 ]]; then
+		echo "Please run as root/sudo"
+		exit 1
+	fi
+}
+
+waitForHelm() {
+	while true; do
+		status=$(kubectl get po -l app=helm -l name=tiller --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -nkube-system)
+
+		echo "Helm status = $status"
+		[ "$status" = "Running" ] && break
+
+		echo "Sleeping 3 seconds ..."
+		sleep 3
+
+	done
+}
+
+running_as_root
+
+valuesFile="${1:-$DEFAULT_VALUES_FILE}"
+
+echo "Downloading and installing helm's client and server components"
+wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
+tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
+chmod +x /tmp/linux-amd64/helm
+mv /tmp/linux-amd64/helm /usr/local/bin/
+rm -rf /tmp/linux-amd64 /tmp/linux-amd64.tar.gz
+
+helm init
+helm repo add codefresh "${CODEFRESH_REPOSITORY}"
+
+echo "Waiting for helm's server installation to complete"
+waitForHelm
+
+echo "Installing Codefresh"
+
+helm upgrade cf codefresh/codefresh \
+	--install \
+	--namespace codefresh \
+	--values "$valuesFile"
+
