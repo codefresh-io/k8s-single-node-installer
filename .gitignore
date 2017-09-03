@@ -1,4 +1,5 @@
 .vagrant
-keyfile.json
+*.json
 values.yml.secret
-
+*.base64
+*-values.yaml
