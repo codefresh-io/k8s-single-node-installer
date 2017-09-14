@@ -184,10 +184,11 @@ mkdir -p /var/local-volume-provisioner/disks/{1..20}
 cat << 'END'
 Your single-node Kubernetes cluster has initialized successfully!
 
-To connect to the cluster using the kubectl utility, export the KUBECONFIG variable:
+To start using your cluster, you need to run (as a regular user):
 
-export KUBECONFIG=/etc/kubernetes/admin.conf
-
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
 END
 
 
