@@ -35,7 +35,7 @@ wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-
 tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
 chmod +x /tmp/linux-amd64/helm
 mv /tmp/linux-amd64/helm /usr/local/bin/
-rm -rf /tmp/linux-amd64 /tmp/linux-amd64.tar.gz
+rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
 
 helm init
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
