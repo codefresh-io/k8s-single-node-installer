@@ -154,6 +154,7 @@ controllerManagerExtraArgs:
   "feature-gates": "PersistentLocalVolumes=true"
 schedulerExtraArgs:
   "feature-gates": "AffinityInAnnotations=true"
+cloudProvider: azure
 EOF
 
 # Phase 3 - initialize the Kubernetes cluster
