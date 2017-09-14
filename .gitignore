@@ -3,3 +3,4 @@
 values.yml.secret
 *.base64
 *-values.yaml
+*-values.yml
