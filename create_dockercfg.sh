@@ -27,3 +27,4 @@ msg "secret encoded, check dockercfg-${customer}.base64 file"
 minikube delete
 minikube profile minikube
 kubectl config delete-context ${customer}
+kubectl config delete-cluster ${customer}
