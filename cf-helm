@@ -1,9 +1,11 @@
 #!/bin/bash
 
+readonly channel="${CF_HELM_CHANNEL:-stable}"
+
 readonly WD=$(dirname "$0")
 
 readonly HELM_VERSION=2.5.1
-readonly CODEFRESH_REPOSITORY=http://codefresh-helm-charts.s3-website-us-east-1.amazonaws.com/
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 
 running_as_root() {
