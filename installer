@@ -157,7 +157,7 @@ token: ${TOKEN}
 api:
   advertiseAddress: "${API_URL}"
 networking:
-  podSubnet:${POD_NETWORK_CIDR}
+  podSubnet: ${POD_NETWORK_CIDR}
 apiServerExtraArgs:
   "feature-gates": "PersistentLocalVolumes=true"
 controllerManagerExtraArgs:
