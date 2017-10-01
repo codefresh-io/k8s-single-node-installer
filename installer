@@ -141,19 +141,31 @@ case "$(os_type)" in
 		;;
 esac
 
+TOKEN=$(kubeadm token generate | tee kubeadm.token)
+IDENT_ME=$(curl ident.me)
+API_URL=${API_URL:-IDENT_ME}
+APISERVER_CERT_SANS=${API_URL}
+POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
+
+
 # Enable alpha APIs
 cat <<EOF >/etc/kubernetes/kubeadm.conf
 apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
-kubernetesVersion: "$KUBERNETES_VERSION"
+kubernetesVersion: "${KUBERNETES_VERSION}"
+token: ${TOKEN}
+api:
+  advertiseAddress: "${API_URL}"
 networking:
-  podSubnet: 10.244.0.0/16
+  podSubnet:${POD_NETWORK_CIDR}
 apiServerExtraArgs:
   "feature-gates": "PersistentLocalVolumes=true"
 controllerManagerExtraArgs:
   "feature-gates": "PersistentLocalVolumes=true"
 schedulerExtraArgs:
   "feature-gates": "AffinityInAnnotations=true"
+apiServerCertSANs:
+- ${APISERVER_CERT_SANS}
 EOF
 
 # Phase 3 - initialize the Kubernetes cluster
