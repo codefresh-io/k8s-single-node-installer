@@ -203,4 +203,4 @@ To start using your cluster, you need to run (as a regular user):
 
 END
 
-
+tail -n5 kubeadm.log
