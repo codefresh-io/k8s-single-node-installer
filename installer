@@ -155,7 +155,6 @@ kind: MasterConfiguration
 kubernetesVersion: "${KUBERNETES_VERSION}"
 token: ${TOKEN}
 tokenTTL: "0"
-selfHosted: true
 api:
   advertiseAddress: "${API_URL}"
 networking:
