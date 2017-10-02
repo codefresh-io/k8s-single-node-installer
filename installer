@@ -73,7 +73,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 EOF
 	setenforce 0
 	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
-	yum install -y kubelet kubeadm-1.7.0-0
+	yum install -y kubelet kubeadm
 	systemctl enable kubelet && systemctl start kubelet
 }
 
@@ -154,6 +154,7 @@ apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
 kubernetesVersion: "${KUBERNETES_VERSION}"
 token: ${TOKEN}
+tokenTTL: 0
 api:
   advertiseAddress: "${API_URL}"
 networking:
