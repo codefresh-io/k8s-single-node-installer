@@ -57,7 +57,7 @@ deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 	apt-get update
 	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
-	apt-get install -y kubelet kubeadm=1.7.0-00
+	apt-get install -y kubelet=1.7.5-00 kubeadm=1.7.5-00
 }
 
 package_centos() {
@@ -154,7 +154,8 @@ apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
 kubernetesVersion: "${KUBERNETES_VERSION}"
 token: ${TOKEN}
-tokenTTL: 0
+tokenTTL: "0"
+selfHosted: true
 api:
   advertiseAddress: "${API_URL}"
 networking:
