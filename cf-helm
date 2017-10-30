@@ -30,18 +30,30 @@ waitForHelm() {
 
 valuesFile="${1:-$DEFAULT_VALUES_FILE}"
 
+helmInstall() {
 echo "Downloading and installing helm's client and server components"
 wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
 tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
 chmod +x /tmp/linux-amd64/helm
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
 rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
+}
 
-helm init
-helm repo add codefresh "${CODEFRESH_REPOSITORY}"
+checkHelmInstalled() {
+  if [ ! -e /usr/local/helm ]
+    then
+    helmInstall
+  fi
+}
+
+echo "Helm already installed?"
+checkHelmInstalled
 
 echo "Waiting for helm's server installation to complete"
 waitForHelm
+
+helm init
+helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
 echo "Installing Codefresh"
 
