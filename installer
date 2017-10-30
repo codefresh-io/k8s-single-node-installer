@@ -156,6 +156,9 @@ schedulerExtraArgs:
   "feature-gates": "AffinityInAnnotations=true"
 EOF
 
+# reset existing cluster
+kubeadm reset
+
 # Phase 3 - initialize the Kubernetes cluster
 kubeadm init --config /etc/kubernetes/kubeadm.conf | tee kubeadm.log | grep -P '^\[' --color=never
 
