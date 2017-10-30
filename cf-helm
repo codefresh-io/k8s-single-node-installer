@@ -37,6 +37,11 @@ tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
 chmod +x /tmp/linux-amd64/helm
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
 rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
+
+echo "Waiting for helm's server installation to complete"
+waitForHelm
+
+helm init
 }
 
 checkHelmInstalled() {
@@ -49,10 +54,6 @@ checkHelmInstalled() {
 echo "Helm already installed?"
 checkHelmInstalled
 
-echo "Waiting for helm's server installation to complete"
-waitForHelm
-
-helm init
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
 echo "Installing Codefresh"
