@@ -40,7 +40,7 @@ rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-a
 }
 
 checkHelmInstalled() {
-  if [ ! -e /usr/local/helm ]
+  if [ ! -e /usr/local/bin/helm ]
     then
     helmInstall
   fi
