@@ -51,7 +51,7 @@ checkHelmInstalled() {
   fi
 }
 
-echo "Helm already installed?"
+echo "Checking Helm..."
 checkHelmInstalled
 
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
