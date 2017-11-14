@@ -34,18 +34,12 @@ waitForHelm() {
 valuesFile="${1:-$DEFAULT_VALUES_FILE}"
 
 helmInstall() {
-msg "Downloading and installing helm's client and server components..."
-wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
-tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
-chmod +x /tmp/linux-amd64/helm
-sudo mv /tmp/linux-amd64/helm /usr/local/bin/
-rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
-
-msg "Helm initialization..."
-helm init
-
-msg "Waiting for helm's server installation to complete..."
-waitForHelm
+  msg "Downloading and installing helm's client and server components..."
+  wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
+  tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
+  chmod +x /tmp/linux-amd64/helm
+  sudo mv /tmp/linux-amd64/helm /usr/local/bin/
+  rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
 }
 
 checkHelmInstalled() {
@@ -72,4 +66,3 @@ helm upgrade cf codefresh/codefresh \
 	--install \
 	--namespace codefresh \
 	--values "$valuesFile"
-
