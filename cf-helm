@@ -61,6 +61,9 @@ checkHelmInstalled
 msg "Helm initialization..."
 helm init
 
+msg "Waiting for helm's server installation to complete..."
+waitForHelm
+
 msg "Adding Helm repo..."
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
