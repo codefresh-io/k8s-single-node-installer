@@ -20,7 +20,7 @@ waitForHelm() {
 		status=$(kubectl get po -l app=helm -l name=tiller --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -nkube-system)
 
 		echo "Helm status = $status"
-		[ "$status" = "Running" ] && break
+		[ "$status" == "Running" ] && break
 
 		echo "Sleeping 3 seconds ..."
 		sleep 15
