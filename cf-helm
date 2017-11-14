@@ -41,6 +41,9 @@ chmod +x /tmp/linux-amd64/helm
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
 rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
 
+msg "Helm initialization..."
+helm init
+
 msg "Waiting for helm's server installation to complete..."
 waitForHelm
 }
