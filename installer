@@ -56,7 +56,6 @@ package_ubuntu() {
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 	apt-get update
-	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
 	apt-get install -y kubelet=1.7.5-00 kubeadm=1.7.5-00
 }
 
@@ -73,7 +72,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 EOF
 	setenforce 0
 	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
-	yum install -y kubelet kubeadm
+	yum install -y kubelet-1.7.5-0 kubeadm-1.7.5-0
 	systemctl enable kubelet && systemctl start kubelet
 }
 

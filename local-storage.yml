@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: provisioner
-        image: "quay.io/external_storage/local-volume-provisioner:latest"
+        image: "quay.io/external_storage/local-volume-provisioner:v1.0.1"
         imagePullPolicy: Always
         securityContext:
           privileged: true
@@ -45,6 +45,7 @@ spec:
       serviceAccount: default
 
 ---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: local-volume-provisioner-config
