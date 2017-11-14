@@ -1,5 +1,8 @@
 #!/bin/bash
 
+msg() { echo -e "\e[32mINFO ---> $1\e[0m"; }
+err() { echo -e "\e[31mERR ---> $1\e[0m" ; exit 1; }
+
 readonly channel="${CF_HELM_CHANNEL:-stable}"
 
 readonly WD=$(dirname "$0")
@@ -10,7 +13,7 @@ readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
-		echo "Please run as root/sudo"
+		err "Please run as root/sudo"
 		exit 1
 	fi
 }
@@ -31,17 +34,15 @@ waitForHelm() {
 valuesFile="${1:-$DEFAULT_VALUES_FILE}"
 
 helmInstall() {
-echo "Downloading and installing helm's client and server components"
+msg "Downloading and installing helm's client and server components..."
 wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
 tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
 chmod +x /tmp/linux-amd64/helm
 sudo mv /tmp/linux-amd64/helm /usr/local/bin/
 rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
 
-echo "Waiting for helm's server installation to complete"
+msg "Waiting for helm's server installation to complete..."
 waitForHelm
-
-helm init
 }
 
 checkHelmInstalled() {
@@ -51,13 +52,16 @@ checkHelmInstalled() {
   fi
 }
 
-echo "Checking Helm..."
+msg "Checking Helm..."
 checkHelmInstalled
 
+msg "Helm initialization..."
+helm init
+
+msg "Adding Helm repo..."
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
-echo "Installing Codefresh"
-
+msg "Installing Codefresh..."
 helm upgrade cf codefresh/codefresh \
 	--install \
 	--namespace codefresh \
