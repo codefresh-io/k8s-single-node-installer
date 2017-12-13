@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+echo $PWD
+
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/installer
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
+
+chmod +x ./installer
+
+EXTERNAL=true ./installer
