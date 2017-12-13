@@ -140,6 +140,7 @@ case "$(os_type)" in
 		;;
 esac
 
+EXTERNAL=${EXTERNAL:-false}
 TOKEN=$(kubeadm token generate | tee kubeadm.token)
 IDENT_ME=$(curl ident.me)
 API_URL=${API_URL:-$IDENT_ME}
@@ -147,6 +148,7 @@ APISERVER_CERT_SANS=${API_URL}
 POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 
 # Enable alpha APIs
+if [[ "${EXTERNAL}" == "true" ]]; then
 cat <<EOF >/etc/kubernetes/kubeadm.conf
 apiVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
@@ -165,6 +167,22 @@ schedulerExtraArgs:
   "feature-gates": "AffinityInAnnotations=true"
 apiServerCertSANs:
 - ${APISERVER_CERT_SANS}
+EOF
+else
+cat <<EOF >/etc/kubernetes/kubeadm.conf
+apiVersion: kubeadm.k8s.io/v1alpha1
+kind: MasterConfiguration
+kubernetesVersion: "${KUBERNETES_VERSION}"
+token: ${TOKEN}
+tokenTTL: "0"
+networking:
+  podSubnet: ${POD_NETWORK_CIDR}
+apiServerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+controllerManagerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+schedulerExtraArgs:
+  "feature-gates": "AffinityInAnnotations=true"
 EOF
 
 # Phase 3 - initialize the Kubernetes cluster
