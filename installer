@@ -144,7 +144,7 @@ EXTERNAL=${EXTERNAL:-false}
 TOKEN=$(kubeadm token generate | tee kubeadm.token)
 IDENT_ME=$(curl ident.me)
 API_URL=${API_URL:-$IDENT_ME}
-APISERVER_CERT_SANS=${API_URL}
+APISERVER_CERT_SANS=${APISERVER_CERT_SANS:-$API_URL}
 POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 
 # Enable alpha APIs
