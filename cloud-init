@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-echo $PWD
-
+# install and run k8s
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/installer
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
@@ -9,3 +8,12 @@ wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/ma
 chmod +x ./installer
 
 EXTERNAL=true ./installer
+
+# install and run helm
+export KUBECONFIG=/etc/kubernetes/admin.conf
+
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm
+wget http://169.254.169.254/2009-04-04/user-data -O values.yml
+
+chmod +x ./cf-helm
+./cf-helm
