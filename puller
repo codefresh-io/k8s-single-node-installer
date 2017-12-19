@@ -17,6 +17,7 @@ for image in $(cat ${IMAGES}); do
 done
 
 kubectl create secret docker-registry dockercfg \
-          --docker-server=https://gcr.io \
-          --docker-username=_json_key \
-          --docker-password="${DOCKER_PASSWORD}"
+  --docker-server=https://gcr.io \
+  --docker-username=_json_key \
+  --docker-password="${DOCKER_PASSWORD}" \
+  --docker-email=admin@codefresh.io
