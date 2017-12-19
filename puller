@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+CREDENTIALS=${1:credentials}
+IMAGES=images
+DOCKER_PASSWORD=$(base64 -d ${CREDENTIALS} | head -n-1)
+FIREBASE=$(base64 -d ${CREDENTIALS} | tail -1)
+
+echo ${FIREBASE} > firebase.yml
+
+docker login -u _json_key -p "${DOCKER_PASSWORD}" https://gcr.io
+
+for image in $(cat ${IMAGES}); do
+  echo "docker pull $image"
+done
+
+kubectl create secret docker-registry dockercfg \
+          --docker-server=https://gcr.io \
+          --docker-username=_json_key \
+          --docker-password="${DOCKERCFG}"

@@ -12,8 +12,8 @@ EXTERNAL=true ./installer
 # install and run helm
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm
-wget http://169.254.169.254/2009-04-04/user-data -O values.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
 
-chmod +x ./cf-helm
-./cf-helm
+docker run -it -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer

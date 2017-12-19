@@ -1,0 +1,16 @@
+gcr.io/codefresh-enterprise/cluster-providers:onprem-v23
+gcr.io/codefresh-enterprise/kube-integration:onprem-v44
+gcr.io/codefresh-enterprise/cf-ui:onprem-v302
+gcr.io/codefresh-enterprise/cf-api:onprem-v258
+codefresh/cf-docker-pusher:v2
+codefresh/cf-docker-puller:v2
+codefresh/cf-docker-builder:v10
+codefresh/cf-container-logger:0.0.18
+codefresh/cf-git-cloner:v2
+codefresh/engine:v10
+bitnami/mongodb:3.4.6-r0
+rabbitmq:3-management
+postgres:9.6
+consul:0.7.2
+nats:0.9.4
+redis:3.2

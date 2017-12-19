@@ -6,3 +6,7 @@ values.yml.secret
 *-values.yml
 *.log
 *.token
+.idea/
+.tmp
+.swp
+

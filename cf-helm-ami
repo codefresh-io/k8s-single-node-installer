@@ -1,0 +1,70 @@
+#!/bin/bash
+
+msg() { echo -e "\e[32mINFO ---> $1\e[0m"; }
+err() { echo -e "\e[31mERR ---> $1\e[0m" ; exit 1; }
+
+readonly channel="${CF_HELM_CHANNEL:-stable}"
+
+readonly WD=$(dirname "$0")
+
+readonly HELM_VERSION=2.5.1
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
+readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
+readonly firbaseSecret="${WD}/firebase.yml"
+
+running_as_root() {
+	if [[ $EUID > 0 ]]; then
+		err "Please run as root/sudo"
+		exit 1
+	fi
+}
+
+waitForHelm() {
+	while true; do
+		status=$(kubectl get po -l app=helm -l name=tiller --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -nkube-system)
+
+		echo "Helm status = $status"
+		[ "$status" == "Running" ] && break
+
+		echo "Sleeping 10 seconds ..."
+		sleep 10
+
+	done
+}
+
+valuesFile="${1:-$DEFAULT_VALUES_FILE}"
+
+helmInstall() {
+  msg "Downloading and installing helm's client and server components..."
+  wget https://storage.googleapis.com/kubernetes-helm/helm-v${HELM_VERSION}-linux-amd64.tar.gz -P /tmp/
+  tar xvf /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz -C /tmp/
+  chmod +x /tmp/linux-amd64/helm
+  sudo mv /tmp/linux-amd64/helm /usr/local/bin/
+  rm -rf /tmp/helm-v${HELM_VERSION}-linux-amd64 /tmp/helm-v${HELM_VERSION}-linux-amd64.tar.gz
+}
+
+checkHelmInstalled() {
+  if [ ! -e /usr/local/bin/helm ]
+    then
+    helmInstall
+  fi
+}
+
+msg "Checking Helm..."
+checkHelmInstalled
+
+msg "Helm initialization..."
+helm init
+
+msg "Waiting for helm's server installation to complete..."
+waitForHelm
+
+msg "Adding Helm repo..."
+helm repo add codefresh "${CODEFRESH_REPOSITORY}"
+
+msg "Installing Codefresh..."
+helm upgrade cf codefresh/codefresh \
+	--install \
+	--namespace codefresh \
+	--values "$valuesFile" \
+  --values "$firbaseSecret"
