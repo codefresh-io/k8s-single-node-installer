@@ -16,4 +16,4 @@ wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/ma
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
 
-docker run -it -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer
+docker run -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer
