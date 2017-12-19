@@ -12,10 +12,9 @@ chmod +x puller
 chmod +x installer
 
 # run wizard
-docker run -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
 
 # install and run k8s
 EXTERNAL=true ./installer
 
-# install and run helm
-export KUBECONFIG=/etc/kubernetes/admin.conf
+mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
