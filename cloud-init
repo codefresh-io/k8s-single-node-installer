@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
-# install and run k8s
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/installer
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
 
-chmod +x ./installer
+chmod +x cf-helm-ami
+chmod +x puller
+chmod +x installer
 
+# run wizard
+docker run -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+
+# install and run k8s
 EXTERNAL=true ./installer
 
 # install and run helm
 export KUBECONFIG=/etc/kubernetes/admin.conf
-
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
-
-docker run -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
