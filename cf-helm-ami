@@ -50,6 +50,9 @@ checkHelmInstalled() {
   fi
 }
 
+msg "Waiting values file..."
+while [ ! -e ${valuesFile} ]; do sleep 1; done
+
 msg "Checking Helm..."
 checkHelmInstalled
 

@@ -18,3 +18,5 @@ docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh d
 EXTERNAL=true ./installer
 
 mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
+
+
