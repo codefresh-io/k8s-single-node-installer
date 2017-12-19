@@ -19,4 +19,4 @@ done
 kubectl create secret docker-registry dockercfg \
           --docker-server=https://gcr.io \
           --docker-username=_json_key \
-          --docker-password="${DOCKERCFG}"
+          --docker-password="${DOCKER_PASSWORD}"
