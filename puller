@@ -19,7 +19,7 @@ echo ${FIREBASE} > firebase.yml
 docker login -u _json_key -p "${DOCKER_PASSWORD}" https://gcr.io || err "Cannot login to docker registry"
 
 for image in $(cat ${IMAGES}); do
-  echo "docker pull $image"
+  docker pull $image
 done
 
 kubectl create secret docker-registry dockercfg \
