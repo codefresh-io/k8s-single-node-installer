@@ -7,7 +7,6 @@ readonly channel="${CF_HELM_CHANNEL:-stable}"
 
 readonly WD=$(dirname "$0")
 
-readonly HELM_HOME=/root/.helm
 readonly HELM_VERSION=2.5.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
@@ -59,7 +58,7 @@ msg "Checking Helm..."
 checkHelmInstalled
 
 msg "Helm initialization..."
-helm init
+helm init --home "/root/.helm"
 
 msg "Waiting for helm's server installation to complete..."
 waitForHelm

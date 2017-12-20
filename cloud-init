@@ -11,15 +11,16 @@ chmod +x cf-helm-ami
 chmod +x puller
 chmod +x installer
 
+# run wizard
+docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+
 # install and run k8s
 EXTERNAL=true ./installer
-
 mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 
 export KUBECONFIG=/root/.kube/config
 
+# run bootstarap
 ./puller &
 ./cf-helm-ami &
 
-# run wizard
-docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
