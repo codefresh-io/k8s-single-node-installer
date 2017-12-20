@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+#uncomment for maintance mode
+exit 0
+
+#start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
