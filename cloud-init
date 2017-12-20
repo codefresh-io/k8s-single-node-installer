@@ -4,7 +4,7 @@
 #exit 0
 
 # run wizard
-docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
 
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
@@ -25,6 +25,9 @@ mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 export KUBECONFIG=/root/.kube/config
 
 # run bootstarap
-./puller &
-./cf-helm-ami &
+./puller
+./cf-helm-ami
 
+sleep 600
+
+docker rm -fv wizard
