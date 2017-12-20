@@ -1,16 +1,18 @@
 #!/bin/bash
 
-msg() { echo -e "\e[32mINFO ---> $1\e[0m"; }
-err() { echo -e "\e[31mERR ---> $1\e[0m" ; exit 1; }
+msg() { echo -e "\e[32mCF-HELM INFO ---> $1\e[0m"; }
+err() { echo -e "\e[31mCF-HELM ERR ---> $1\e[0m" ; exit 1; }
 
 readonly channel="${CF_HELM_CHANNEL:-stable}"
 
 readonly WD=$(dirname "$0")
 
+readonly HELM_HOME=/root/.helm
 readonly HELM_VERSION=2.5.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 readonly firbaseSecret="${WD}/firebase.yml"
+readonly dockercfg="${WD}/dockercfg.yml"
 
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
@@ -70,4 +72,5 @@ helm upgrade cf codefresh/codefresh \
 	--install \
 	--namespace codefresh \
 	--values "$valuesFile" \
-  --values "$firbaseSecret"
+  --values "$firbaseSecret" \
+  --values "$dockercfg"

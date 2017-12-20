@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
+msg() { echo -e "\e[32mPULLER INFO ---> $1\e[0m"; }
+err() { echo -e "\e[31mPULLER ERR ---> $1\e[0m" ; exit 1; }
+
 IMAGES=images
 CREDENTIALS=${1:-credentials}
 
+msg "Waiting credentials..."
 while [ ! -e ${CREDENTIALS} ]; do sleep 1; done
 
+msg "Pulling images..."
+KUBECONFIG=/root/.kube/config
 DOCKER_PASSWORD=$(base64 -d ${CREDENTIALS} | head -n-1)
 FIREBASE=$(base64 -d ${CREDENTIALS} | tail -1)
 
 echo ${FIREBASE} > firebase.yml
 
-docker login -u _json_key -p "${DOCKER_PASSWORD}" https://gcr.io
+docker login -u _json_key -p "${DOCKER_PASSWORD}" https://gcr.io || err "Cannot login to docker registry"
 
 for image in $(cat ${IMAGES}); do
   echo "docker pull $image"
@@ -20,4 +26,8 @@ kubectl create secret docker-registry dockercfg \
   --docker-server=https://gcr.io \
   --docker-username=_json_key \
   --docker-password="${DOCKER_PASSWORD}" \
-  --docker-email=admin@codefresh.io
+  --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
+
+kubectl get secret dockercfg -oyaml | grep 'dockercfg:' | awk -F '.' '{print $2}' > dockercfg.yml
+
+kubectl delete secret dockercfg

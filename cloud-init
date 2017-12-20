@@ -16,6 +16,8 @@ EXTERNAL=true ./installer
 
 mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 
+export KUBECONFIG=/root/.kube/config
+
 ./puller &
 ./cf-helm-ami &
 
