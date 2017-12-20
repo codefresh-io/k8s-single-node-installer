@@ -3,6 +3,9 @@
 #uncomment for maintance mode
 #exit 0
 
+# run wizard
+docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
@@ -11,12 +14,9 @@ wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/ma
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
 
-chmod +x cf-helm-ami
 chmod +x puller
 chmod +x installer
-
-# run wizard
-docker run --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+chmod +x cf-helm-ami
 
 # install and run k8s
 EXTERNAL=true ./installer
