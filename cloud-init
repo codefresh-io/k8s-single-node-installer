@@ -25,9 +25,7 @@ mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 export KUBECONFIG=/root/.kube/config
 
 # run bootstarap
-./puller
+./puller &
 ./cf-helm-ami
-
-sleep 600
 
 docker rm -fv wizard
