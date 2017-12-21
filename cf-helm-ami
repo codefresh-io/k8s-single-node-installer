@@ -66,6 +66,8 @@ helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
 msg "Waiting values files..."
 while [ ! -e ${dockercfg} ]; do sleep 1; done
+while [ ! -e ${firbaseSecret} ]; do sleep 1; done
+while [ ! -e ${valuesFile} ]; do sleep 1; done
 
 msg "Installing Codefresh..."
 helm upgrade cf codefresh/codefresh \
