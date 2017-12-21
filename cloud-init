@@ -4,7 +4,8 @@
 #exit 0
 
 # run wizard
-docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh docker.io/codefresh/enterprise-installer:master
+docker pull codefresh/enterprise-installer:master
+docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
 
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
