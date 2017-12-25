@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-msg() { echo -e "\e[32mPULLER INFO ---> $1\e[0m"; }
-err() { echo -e "\e[31mPULLER ERR ---> $1\e[0m" ; exit 1; }
+msg() { echo -e "\e[32mBOOTSTRAPER INFO ---> $1\e[0m"; }
+err() { echo -e "\e[31mBOOTSTRAPER ERR ---> $1\e[0m" ; exit 1; }
 
 IMAGES=images
 CREDENTIALS=${1:-credentials}

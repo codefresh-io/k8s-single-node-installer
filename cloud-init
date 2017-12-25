@@ -9,13 +9,13 @@ docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/o
 
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/puller
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/bootstraper
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/installer
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
 
-chmod +x puller
+chmod +x bootstraper
 chmod +x installer
 chmod +x cf-helm-ami
 
@@ -25,8 +25,8 @@ mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 
 export KUBECONFIG=/root/.kube/config
 
-# run bootstarap
-./puller &
-./cf-helm-ami
+# run bootstraper
+nohup ./bootstraper &
 
-docker rm -fv wizard
+#run helm-updater
+nohup ./cf-helm-ami &
