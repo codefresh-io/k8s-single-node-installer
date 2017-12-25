@@ -85,6 +85,6 @@ while true; do
     --values "$dockercfg"
 
   mkdir -p ${VALUES_ARCHIVE}
-  mv ${valuesFile} /opt/codefresh/values/${valuesFile}_${TIMESTAMP}
+  mv ${valuesFile} ${VALUES_ARCHIVE}/${valuesFile}_${TIMESTAMP}
 
 done
