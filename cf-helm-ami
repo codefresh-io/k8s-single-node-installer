@@ -15,8 +15,6 @@ readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 readonly firbaseSecret="${WD}/firebase.yml"
 readonly dockercfg="${WD}/dockercfg.yml"
 
-TIMESTAMP=$(date +%F_%H-%M-%S)
-
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
 		err "Please run as root/sudo"
@@ -86,6 +84,8 @@ while true; do
     --no-hooks
 
   mkdir -p ${VALUES_ARCHIVE}
+  TIMESTAMP=$(date +%F_%H-%M-%S)
+
   mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
 
 done
