@@ -82,7 +82,8 @@ while true; do
     --namespace codefresh \
     --values "$valuesFile" \
     --values "$firbaseSecret" \
-    --values "$dockercfg"
+    --values "$dockercfg" \
+    --no-hooks
 
   mkdir -p ${VALUES_ARCHIVE}
   mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
