@@ -65,7 +65,26 @@ waitForHelm
 msg "Adding Helm repo..."
 helm repo add codefresh "${CODEFRESH_REPOSITORY}"
 
-msg "Starting service ;)..."
+msg "Waiting values files..."
+while [ ! -e ${dockerCfg} ]; do sleep 1; done
+while [ ! -e ${firbaseSecret} ]; do sleep 1; done
+while [ ! -e ${valuesFile} ]; do sleep 1; done
+
+msg "Installing Codefresh..."
+helm upgrade cf codefresh/codefresh \
+  --install \
+  --namespace codefresh \
+  --values "$valuesFile" \
+  --values "$firbaseSecret" \
+  --values "$dockerCfg" \
+  --no-hooks
+
+mkdir -p ${VALUES_ARCHIVE}
+TIMESTAMP=$(date +%F_%H-%M-%S)
+
+mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
+
+msg "Starting daemon ;)..."
 
 while true; do
 
@@ -74,7 +93,7 @@ while true; do
   while [ ! -e ${firbaseSecret} ]; do sleep 1; done
   while [ ! -e ${valuesFile} ]; do sleep 1; done
 
-  msg "Installing Codefresh..."
+  msg "Upgrading Codefresh..."
   helm upgrade cf codefresh/codefresh \
     --install \
     --namespace codefresh \
