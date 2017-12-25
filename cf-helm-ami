@@ -72,7 +72,7 @@ msg "Starting service ;)..."
 while true; do
 
   msg "Waiting values files..."
-  while [[ ! -e ${dockercfg} && ]]; do sleep 1; done
+  while [ ! -e ${dockercfg} ]; do sleep 1; done
   while [ ! -e ${firbaseSecret} ]; do sleep 1; done
   while [ ! -e ${valuesFile} ]; do sleep 1; done
 
