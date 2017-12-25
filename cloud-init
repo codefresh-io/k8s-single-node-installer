@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
-#uncomment for maintance mode
-#exit 0
+#maintenance mode
+wget http://169.254.169.254/latest/user-data
+if [ $? = 0 ]; then
+  USER_DATA=$(cat user-data)
+  if [ ${USER_DATA} = "maintenance_mode" ]; then
+    exit 0
+  fi
+fi
 
 # run wizard
 docker pull codefresh/enterprise-installer:master
