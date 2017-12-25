@@ -7,7 +7,7 @@ readonly KUBECONFIG=/root/.kube/config
 readonly workingDir="/opt/codefresh"
 
 imagesList=${workingDir}/images
-credentials=${workingDir}/token
+credentials=${workingDir}/credentials
 firebaseCfg=${workingDir}/firebase.yml
 dockerCfg=${workingDir}/dockercfg.yml
 
