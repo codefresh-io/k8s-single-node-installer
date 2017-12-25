@@ -13,7 +13,7 @@ readonly HELM_VERSION=2.5.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 readonly firbaseSecret="${WD}/firebase.yml"
-readonly dockercfg="${WD}/dockercfg.yml"
+readonly dockerCfg="${WD}/dockercfg.yml"
 
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
@@ -70,7 +70,7 @@ msg "Starting service ;)..."
 while true; do
 
   msg "Waiting values files..."
-  while [ ! -e ${dockercfg} ]; do sleep 1; done
+  while [ ! -e ${dockerCfg} ]; do sleep 1; done
   while [ ! -e ${firbaseSecret} ]; do sleep 1; done
   while [ ! -e ${valuesFile} ]; do sleep 1; done
 
@@ -80,8 +80,9 @@ while true; do
     --namespace codefresh \
     --values "$valuesFile" \
     --values "$firbaseSecret" \
-    --values "$dockercfg" \
-    --no-hooks
+    --values "$dockerCfg" \
+    --no-hooks \
+    --set cfapi.redeploy=true
 
   mkdir -p ${VALUES_ARCHIVE}
   TIMESTAMP=$(date +%F_%H-%M-%S)

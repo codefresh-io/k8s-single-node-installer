@@ -3,31 +3,35 @@
 msg() { echo -e "\e[32mBOOTSTRAPER INFO ---> $1\e[0m"; }
 err() { echo -e "\e[31mBOOTSTRAPER ERR ---> $1\e[0m" ; exit 1; }
 
-IMAGES=images
-CREDENTIALS=${1:-credentials}
+readonly KUBECONFIG=/root/.kube/config
+readonly workingDir="/opt/codefresh"
+
+imagesList=${workingDir}/images
+credentials=${workingDir}/token
+firebaseCfg=${workingDir}/firebase.yml
+dockerCfg=${workingDir}/dockercfg.yml
 
 msg "Waiting credentials..."
-while [ ! -e ${CREDENTIALS} ]; do sleep 1; done
+while [ ! -e ${credentials} ]; do sleep 1; done
 
 msg "Pulling images..."
-KUBECONFIG=/root/.kube/config
-DOCKER_PASSWORD=$(base64 -d ${CREDENTIALS} | head -n-1)
-FIREBASE=$(base64 -d ${CREDENTIALS} | tail -1)
+dockerPassword=$(base64 -d ${credentials} | head -n-1)
+firebaseSecret=$(base64 -d ${credentials} | tail -1)
 
-echo ${FIREBASE} > firebase.yml
+echo ${firebaseSecret} > ${firebaseCfg}
 
-docker login -u _json_key -p "${DOCKER_PASSWORD}" https://gcr.io || err "Cannot login to docker registry"
+docker login -u _json_key -p "${dockerPassword}" https://gcr.io || err "Cannot login to docker registry"
 
-for image in $(cat ${IMAGES}); do
+for image in $(cat ${imagesList}); do
   docker pull $image
 done
 
 kubectl create secret docker-registry dockercfg \
   --docker-server=https://gcr.io \
   --docker-username=_json_key \
-  --docker-password="${DOCKER_PASSWORD}" \
+  --docker-password="${dockerPassword}" \
   --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
 
-kubectl get secret dockercfg -oyaml | grep 'dockercfg:' | awk -F '.' '{print $2}' > dockercfg.yml
+kubectl get secret dockercfg -oyaml | grep 'dockercfg:' | awk -F '.' '{print $2}' > ${dockerCfg}
 
 kubectl delete secret dockercfg
