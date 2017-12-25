@@ -5,8 +5,8 @@ err() { echo -e "\e[31mCF-HELM ERR ---> $1\e[0m" ; exit 1; }
 
 readonly channel="${CF_HELM_CHANNEL:-stable}"
 
-readonly WD=$(dirname "$0")
-readonly VALUES_ARCHIVE="/opt/codefresh/valuesArchive"
+readonly WD="/opt/codefresh"
+readonly VALUES_ARCHIVE="${WD}/valuesArchive"
 
 export HELM_HOME="/root/.helm"
 readonly HELM_VERSION=2.5.1
