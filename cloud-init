@@ -9,6 +9,11 @@ if [ $? = 0 ]; then
   fi
 fi
 
+workingDir="/opt/codefresh"
+logsDir="${workingDir}/logs"
+
+mkdir -p ${logsDir}
+
 # run wizard
 docker pull codefresh/enterprise-installer:master
 docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
@@ -26,13 +31,13 @@ chmod +x installer
 chmod +x cf-helm-ami
 
 # install and run k8s
-EXTERNAL=true ./installer
+EXTERNAL=true ./installer | tee >> ${logsDir}/installer.log
 mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 
 export KUBECONFIG=/root/.kube/config
 
 # run bootstraper
-nohup ./bootstraper &
+nohup ./bootstraper | tee >> ${logsDir}/bootstraper.log &
 
 #run helm-updater
-nohup ./cf-helm-ami &
+nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
