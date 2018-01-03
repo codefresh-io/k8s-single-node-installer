@@ -40,4 +40,7 @@ export KUBECONFIG=/root/.kube/config
 nohup ./bootstraper | tee >> ${logsDir}/bootstraper.log &
 
 #run helm-updater
+cat << EOF > /etc/rc.local
+#!/bin/sh -e
 nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
+EOF
