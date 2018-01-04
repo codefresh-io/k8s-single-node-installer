@@ -74,7 +74,9 @@ while true; do
   while [ ! -e ${firbaseSecret} ]; do sleep 1; done
   while [ ! -e ${valuesFile} ]; do sleep 1; done
 
-  msg "Upgrading Codefresh..."
+  TIMESTAMP=$(date +%F_%H-%M-%S)
+
+  msg "[${TIMESTAMP}] updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
     --install \
     --namespace codefresh \
@@ -85,7 +87,6 @@ while true; do
     --set cfapi.redeploy=true
 
   mkdir -p ${VALUES_ARCHIVE}
-  TIMESTAMP=$(date +%F_%H-%M-%S)
 
   mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
 

@@ -45,5 +45,5 @@ nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
 # add to rc.local cf-helm-ami
 cat << EOF > /etc/rc.local
 #!/bin/sh -e
-nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
+nohup ${workingDir}/cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
 EOF
