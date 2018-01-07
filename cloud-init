@@ -44,6 +44,9 @@ nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
 
 # add to rc.local cf-helm-ami
 cat << EOF > /etc/rc.local
-#!/bin/sh -e
+#!/bin/bash
+export KUBECONFIG=/root/.kube/config
 nohup ${workingDir}/cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
+
+exit 0
 EOF
