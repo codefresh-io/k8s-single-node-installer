@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-#maintenance mode
+#maintenance and dev mode
 wget http://169.254.169.254/latest/user-data
 if [ $? = 0 ]; then
   USER_DATA=$(cat user-data)
   if [ ${USER_DATA} = "maintenance_mode" ]; then
     exit 0
+  elif [ ${USER_DATA} = "dev" ]; then
+    export CF_HELM_CHANNEL=dev
   fi
 fi
 
