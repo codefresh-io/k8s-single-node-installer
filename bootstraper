@@ -22,16 +22,17 @@ echo ${firebaseSecret} > ${firebaseCfg}
 
 docker login -u _json_key -p "${dockerPassword}" https://gcr.io || err "Cannot login to docker registry"
 
-for image in $(cat ${imagesList}); do
-  docker pull $image
-done
-
 kubectl create secret docker-registry dockercfg \
   --docker-server=https://gcr.io \
   --docker-username=_json_key \
   --docker-password="${dockerPassword}" \
   --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
 
-kubectl get secret dockercfg -oyaml | grep 'dockercfg:' | awk -F '.' '{print $2}' > ${dockerCfg}
+dockerSecret=$(kubectl get secret dockercfg -oyaml | grep '.dockercfg' | awk -F ':' '{print $2}')
+echo "dockercfg: ${dockerSecret}" > ${dockerCfg}
 
 kubectl delete secret dockercfg
+
+for image in $(cat ${imagesList}); do
+  docker pull $image
+done
