@@ -1,36 +1,35 @@
 #!/usr/bin/env bash
 
-msg() { echo -e "\e[32mBOOTSTRAPER INFO ---> $1\e[0m"; }
-err() { echo -e "\e[31mBOOTSTRAPER ERR ---> $1\e[0m" ; exit 1; }
+log_date=$(date +%F_%H-%M-%S)
+msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
 
 readonly KUBECONFIG=/root/.kube/config
 readonly workingDir="/opt/codefresh"
 
 imagesList=${workingDir}/images
 credentials=${workingDir}/credentials
-firebaseCfg=${workingDir}/firebase.yml
-dockerCfg=${workingDir}/dockercfg.yml
+tokenValuesYaml=${workingDir}/token-values.yml
+dockerCfgYaml=${workingDir}/dockercfg.yml
 
 msg "Waiting credentials..."
 while [ ! -e ${credentials} ]; do sleep 1; done
 
 msg "Pulling images..."
-dockerPassword=$(base64 -d ${credentials} | head -n-1)
-firebaseSecret=$(base64 -d ${credentials} | tail -1)
+dockerCfgJson=$(base64 -d ${credentials} | awk '/^{/,/^}/')
+tokenValues=$(base64 -d ${credentials} | awk '/^{/,/^}/{next}1')
 
-echo ${firebaseSecret} > ${firebaseCfg}
+echo ${tokenValues} > ${tokenValuesYaml}
 
-docker login -u _json_key -p "${dockerPassword}" https://gcr.io || err "Cannot login to docker registry"
+docker login -u _json_key -p "${dockerCfgJson}" https://gcr.io || err "Cannot login to docker registry"
 
 kubectl create secret docker-registry dockercfg \
   --docker-server=https://gcr.io \
   --docker-username=_json_key \
-  --docker-password="${dockerPassword}" \
+  --docker-password="${dockerCfgJson}" \
   --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
 
-dockerSecret=$(kubectl get secret dockercfg -oyaml | grep '.dockercfg' | awk -F ':' '{print $2}')
-echo "dockercfg: ${dockerSecret}" > ${dockerCfg}
-
+kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${dockerCfgYaml}
 kubectl delete secret dockercfg
 
 for image in $(cat ${imagesList}); do

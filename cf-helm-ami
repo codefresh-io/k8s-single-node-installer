@@ -1,7 +1,8 @@
 #!/bin/bash
 
-msg() { echo -e "\e[32mCF-HELM INFO ---> $1\e[0m"; }
-err() { echo -e "\e[31mCF-HELM ERR ---> $1\e[0m" ; exit 1; }
+log_date=$(date +%F_%H-%M-%S)
+msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
 
 readonly channel="${CF_HELM_CHANNEL:-stable}"
 
@@ -12,8 +13,8 @@ export HELM_HOME="/root/.helm"
 readonly HELM_VERSION=2.5.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
-readonly firbaseSecret="${WD}/firebase.yml"
 readonly dockerCfg="${WD}/dockercfg.yml"
+readonly tokenValues="${WD}/token-values.yml"
 
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
@@ -71,18 +72,18 @@ while true; do
 
   msg "Waiting values files..."
   while [ ! -e ${dockerCfg} ]; do sleep 1; done
-  while [ ! -e ${firbaseSecret} ]; do sleep 1; done
+  while [ ! -e ${tokenValues} ]; do sleep 1; done
   while [ ! -e ${valuesFile} ]; do sleep 1; done
 
   TIMESTAMP=$(date +%F_%H-%M-%S)
 
-  msg "[${TIMESTAMP}] updating Codefresh..."
+  msg "Updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
     --install \
     --namespace codefresh \
-    --values "$valuesFile" \
-    --values "$firbaseSecret" \
-    --values "$dockerCfg" \
+    --values "${valuesFile}" \
+    --values "${dockerCfg}" \
+    --values "${tokenValues}" \
     --no-hooks \
     --set cfapi.redeploy=true
 
