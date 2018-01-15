@@ -19,7 +19,7 @@ msg "Pulling images..."
 dockerCfgJson=$(base64 -d ${credentials} | awk '/^{/,/^}/')
 tokenValues=$(base64 -d ${credentials} | awk '/^{/,/^}/{next}1')
 
-echo ${tokenValues} > ${tokenValuesYaml}
+echo "${tokenValues}" > ${tokenValuesYaml}
 
 docker login -u _json_key -p "${dockerCfgJson}" https://gcr.io || err "Cannot login to docker registry"
 
