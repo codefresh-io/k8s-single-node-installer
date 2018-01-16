@@ -90,5 +90,6 @@ while true; do
   mkdir -p ${VALUES_ARCHIVE}
 
   mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
+  mv ${tokenValues} ${VALUES_ARCHIVE}/token-values_${TIMESTAMP}.yml
 
 done
