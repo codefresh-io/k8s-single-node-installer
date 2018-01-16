@@ -8,7 +8,7 @@ readonly KUBECONFIG=/root/.kube/config
 readonly WORKING_DIR="/opt/codefresh"
 readonly VALUES_ARCHIVE_DIR="${WORKING_DIR}/valuesArchive"
 readonly IMAGES_LIST=${WORKING_DIR}/images
-readonly CREDENTIALS=${WORKING_DIR}/CREDENTIALS
+readonly CREDENTIALS=${WORKING_DIR}/credentials
 readonly TOKEN_VALUES_YAML=${WORKING_DIR}/token-values.yml
 readonly DOCKER_CFG_YAML=${WORKING_DIR}/dockercfg.yml
 
