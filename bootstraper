@@ -1,50 +1,54 @@
 #!/usr/bin/env bash
 
-log_date=$(date +%F_%H-%M-%S)
-msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
-err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
+LOG_DATE=$(date +%F_%H-%M-%S)
+msg() { echo -e "\e[32mBOOTSTRAP INFO [${LOG_DATE}] ---> $1\e[0m"; }
+err() { echo -e "\e[31mBOOTSTRAP ERR [${LOG_DATE}] ---> $1\e[0m" ; exit 1; }
 
 readonly KUBECONFIG=/root/.kube/config
-readonly workingDir="/opt/codefresh"
+readonly WORKING_DIR="/opt/codefresh"
+readonly VALUES_ARCHIVE_DIR="${WORKING_DIR}/valuesArchive"
+readonly IMAGES_LIST=${WORKING_DIR}/images
+readonly CREDENTIALS=${WORKING_DIR}/CREDENTIALS
+readonly TOKEN_VALUES_YAML=${WORKING_DIR}/token-values.yml
+readonly DOCKER_CFG_YAML=${WORKING_DIR}/dockercfg.yml
 
-imagesList=${workingDir}/images
-credentials=${workingDir}/credentials
-tokenValuesYaml=${workingDir}/token-values.yml
-tokenVal
-dockerCfgYaml=${workingDir}/dockercfg.yml
-
-msg "Waiting credentials..."
-while [ ! -e ${credentials} ]; do sleep 1; done
-
-msg "Pulling images..."
-dockerCfgJson=$(base64 -d ${credentials} | awk '/^{/,/^}/')
-tokenValues=$(base64 -d ${credentials} | awk '/^{/,/^}/{next}1')
-
-echo "${tokenValues}" > ${tokenValuesYaml}
-rm ${credentials}
-
-docker login -u _json_key -p "${dockerCfgJson}" https://gcr.io || err "Cannot login to docker registry"
-
-kubectl create secret docker-registry dockercfg \
-  --docker-server=https://gcr.io \
-  --docker-username=_json_key \
-  --docker-password="${dockerCfgJson}" \
-  --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
-
-kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${dockerCfgYaml}
-kubectl delete secret dockercfg
-
-for image in $(cat ${imagesList}); do
-  docker pull $image
-done
+if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
+  msg "Waiting token..."
+  while [ ! -e ${CREDENTIALS} ]; do sleep 1; done
+  
+  DOCKER_CFG_JSON=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/')
+  TOKEN_VALUES=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/{next}1')
+  
+  echo "${TOKEN_VALUES}" > ${TOKEN_VALUES_YAML}
+  rm ${CREDENTIALS}
+  
+  msg "Docker login"
+  docker login -u _json_key -p "${DOCKER_CFG_JSON}" https://gcr.io || err "Cannot login to docker registry"
+  
+  msg "Kubernetes secret"
+  kubectl create secret docker-registry dockercfg \
+    --docker-server=https://gcr.io \
+    --docker-username=_json_key \
+    --docker-password="${DOCKER_CFG_JSON}" \
+    --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
+  
+  kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
+  kubectl delete secret dockercfg
+  
+  msg "Pulling images..."
+  for image in $(cat ${IMAGES_LIST}); do
+    docker pull $image
+  done
+fi
 
 # start daemon
+msg "Starting daemon..."
 while true; do
-  msg "Waiting credentials..."
-  while [ ! -e ${credentials} ]; do sleep 1; done
-  msg "Waiting credentials..."
-  tokenValues=$(base64 -d ${credentials} | awk '/^{/,/^}/{next}1')
-  echo "${tokenValues}" > ${tokenValuesYaml}.tmp
-  mv ${tokenValuesYaml}.tmp ${tokenValuesYaml}
-  rm ${credentials}
+  msg "Waiting token..."
+  while [ ! -e ${CREDENTIALS} ]; do sleep 1; done
+  msg "Writing new values..."
+  TOKEN_VALUES=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/{next}1')
+  echo "${TOKEN_VALUES}" > ${TOKEN_VALUES_YAML}.tmp
+  mv ${TOKEN_VALUES_YAML}.tmp ${TOKEN_VALUES_YAML}
+  rm ${CREDENTIALS}
 done

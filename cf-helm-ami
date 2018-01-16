@@ -1,20 +1,20 @@
 #!/bin/bash
 
-log_date=$(date +%F_%H-%M-%S)
-msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
-err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
+LOG_DATE=$(date +%F_%H-%M-%S)
+msg() { echo -e "\e[32mCF-HELM INFO [${LOG_DATE}] ---> $1\e[0m"; }
+err() { echo -e "\e[31mCF-HELM ERR [${LOG_DATE}] ---> $1\e[0m" ; exit 1; }
 
-readonly channel="${CF_HELM_CHANNEL:-stable}"
+readonly CHANNEL="${CF_HELM_CHANNEL:-stable}"
 
-readonly WD="/opt/codefresh"
-readonly VALUES_ARCHIVE="${WD}/valuesArchive"
+readonly WORKING_DIR="/opt/codefresh"
+readonly VALUES_ARCHIVE="${WORKING_DIR}/valuesArchive"
 
 export HELM_HOME="/root/.helm"
 readonly HELM_VERSION=2.5.1
-readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
-readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
-readonly dockerCfg="${WD}/dockercfg.yml"
-readonly tokenValues="${WD}/token-values.yml"
+readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
+readonly DEFAULT_VALUES_FILE="${WORKING_DIR}/values.yml"
+readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yml"
+readonly TOKEN_VALUES_YAML="${WORKING_DIR}/token-values.yml"
 
 running_as_root() {
 	if [[ $EUID > 0 ]]; then
@@ -36,7 +36,7 @@ waitForHelm() {
 	done
 }
 
-valuesFile="${1:-$DEFAULT_VALUES_FILE}"
+VALUES_FILE_YAML="${1:-$DEFAULT_VALUES_FILE}"
 
 helmInstall() {
   msg "Downloading and installing helm's client and server components..."
@@ -71,25 +71,25 @@ msg "Starting daemon ;)..."
 while true; do
 
   msg "Waiting values files..."
-  while [ ! -e ${dockerCfg} ]; do sleep 1; done
-  while [ ! -e ${tokenValues} ]; do sleep 1; done
-  while [ ! -e ${valuesFile} ]; do sleep 1; done
+  while [ ! -e ${DOCKER_CFG_YAML} ]; do sleep 1; done
+  while [ ! -e ${TOKEN_VALUES_YAML} ]; do sleep 1; done
+  while [ ! -e ${VALUES_FILE_YAML} ]; do sleep 1; done
 
   TIMESTAMP=$(date +%F_%H-%M-%S)
 
-  msg "Updating Codefresh..."
+  msg "Installing/Updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
     --install \
     --namespace codefresh \
-    --values "${valuesFile}" \
-    --values "${dockerCfg}" \
-    --values "${tokenValues}" \
+    --values "${VALUES_FILE_YAML}" \
+    --values "${DOCKER_CFG_YAML}" \
+    --values "${TOKEN_VALUES_YAML}" \
     --no-hooks \
     --set cfapi.redeploy=true
 
   mkdir -p ${VALUES_ARCHIVE}
 
-  mv ${valuesFile} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
-  mv ${tokenValues} ${VALUES_ARCHIVE}/token-values_${TIMESTAMP}.yml
+  mv ${VALUES_FILE_YAML} ${VALUES_ARCHIVE}/values_${TIMESTAMP}.yml
+  mv ${TOKEN_VALUES_YAML} ${VALUES_ARCHIVE}/token-values_${TIMESTAMP}.yml
 
 done

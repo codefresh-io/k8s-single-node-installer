@@ -11,10 +11,10 @@ if [ $? = 0 ]; then
   fi
 fi
 
-workingDir="/opt/codefresh"
-logsDir="${workingDir}/logs"
+WORKING_DIR="/opt/codefresh"
+LOG_DIR="${WORKING_DIR}/logs"
 
-mkdir -p ${logsDir}
+mkdir -p ${LOG_DIR}
 
 # run wizard
 docker pull codefresh/enterprise-installer:master
@@ -33,22 +33,23 @@ chmod +x installer
 chmod +x cf-helm-ami
 
 # install and run k8s
-EXTERNAL=true ./installer | tee >> ${logsDir}/installer.log
+EXTERNAL=true ./installer | tee >> ${LOG_DIR}/installer.log
 mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
 
 export KUBECONFIG=/root/.kube/config
 
 # run bootstraper
-nohup ./bootstraper | tee >> ${logsDir}/bootstraper.log &
+${WORKING_DIR}/bootstraper >> ${LOG_DIR}/bootstraper.log 2>&1 &
 
 # run helm-updater
-nohup ./cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
+${WORKING_DIR}/cf-helm-ami >> ${LOG_DIR}/cf-helm.log 2>&1 &
 
 # add to rc.local cf-helm-ami
 cat << EOF > /etc/rc.local
 #!/bin/bash
 export KUBECONFIG=/root/.kube/config
-nohup ${workingDir}/cf-helm-ami | tee >> ${logsDir}/cf-helm.log &
+${WORKING_DIR}/bootstraper >> ${LOG_DIR}/bootstraper.log 2>&1 &
+${WORKING_DIR}/cf-helm-ami >> ${LOG_DIR}/cf-helm.log 2>&1 &
 
 exit 0
 EOF
