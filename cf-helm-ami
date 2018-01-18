@@ -27,10 +27,10 @@ waitForHelm() {
 	while true; do
 		status=$(kubectl get po -l app=helm -l name=tiller --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -nkube-system)
 
-		echo "Helm status = $status"
+		msg "Tiller status = $status"
 		[ "$status" == "Running" ] && break
 
-		echo "Sleeping 10 seconds ..."
+		msg "Sleeping 10 seconds ..."
 		sleep 10
 
 	done
@@ -75,8 +75,10 @@ while true; do
   while [ ! -e ${TOKEN_VALUES_YAML} ]; do sleep 1; done
   while [ ! -e ${VALUES_FILE_YAML} ]; do sleep 1; done
 
-  TIMESTAMP=$(date +%F_%H-%M-%S)
+  msg "Checking tiller status..."
+  waitForHelm
 
+  TIMESTAMP=$(date +%F_%H-%M-%S)
   msg "Installing/Updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
     --install \
