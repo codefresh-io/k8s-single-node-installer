@@ -155,8 +155,6 @@ kind: MasterConfiguration
 kubernetesVersion: "${KUBERNETES_VERSION}"
 token: ${TOKEN}
 tokenTTL: "0"
-api:
-  advertiseAddress: "${API_URL}"
 networking:
   podSubnet: ${POD_NETWORK_CIDR}
 apiServerExtraArgs:
