@@ -21,12 +21,12 @@ docker pull codefresh/enterprise-installer:master
 docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
 
 #start bootstrap
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/images
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/bootstraper
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/cf-helm-ami
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/installer
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/flannel.yml
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/master/local-storage.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/images
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/bootstraper
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/cf-helm-ami
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/installer
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/flannel.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/local-storage.yml
 
 chmod +x bootstraper
 chmod +x installer
