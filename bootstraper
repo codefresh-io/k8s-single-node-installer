@@ -14,26 +14,36 @@ readonly DOCKER_CFG_YAML=${WORKING_DIR}/dockercfg.yml
 if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
   msg "Waiting token..."
   while [ ! -e ${CREDENTIALS} ]; do sleep 1; done
-  
+
   DOCKER_CFG_JSON=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/')
   TOKEN_VALUES=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/{next}1')
-  
+
   echo "${TOKEN_VALUES}" > ${TOKEN_VALUES_YAML}
   rm ${CREDENTIALS}
-  
+
   msg "Docker login"
   docker login -u _json_key -p "${DOCKER_CFG_JSON}" https://gcr.io || err "Cannot login to docker registry"
-  
+
   msg "Kubernetes secret"
   kubectl create secret docker-registry dockercfg \
     --docker-server=https://gcr.io \
     --docker-username=_json_key \
     --docker-password="${DOCKER_CFG_JSON}" \
     --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
-  
-  kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
+
+# kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
+  DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}')
+
+  cat <<EOF >${DOCKER_CFG_YAML}
+---
+${DOCKER_CFG_VAR}
+
+cfui:
+  ${DOCKER_CFG_VAR}
+EOF
+
   kubectl delete secret dockercfg
-  
+
   msg "Pulling images..."
   for image in $(cat ${IMAGES_LIST}); do
     docker pull $image
