@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 #maintenance and dev mode
 wget http://169.254.169.254/latest/user-data
 if [ $? = 0 ]; then
