@@ -28,6 +28,9 @@ if [ $? = 0 ]; then
     export CF_HELM_CHANNEL=dev
     echo "Exporting CF_HELM_CHANNEL"
   fi
+else
+  echo "Unable to read user-data file"
+  exit 1
 fi
 
 BRANCH=${BRANCH:-master}
