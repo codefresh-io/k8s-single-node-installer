@@ -17,8 +17,8 @@ LOG_DIR="${WORKING_DIR}/logs"
 mkdir -p ${LOG_DIR}
 
 # run wizard
-docker pull codefresh/enterprise-installer:master
-docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
+#docker pull codefresh/enterprise-installer:master
+#docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
 
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/images
@@ -53,3 +53,8 @@ ${WORKING_DIR}/cf-helm-ami >> ${LOG_DIR}/cf-helm.log 2>&1 &
 
 exit 0
 EOF
+
+# run wizard
+docker pull codefresh/enterprise-installer:master
+docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
+
