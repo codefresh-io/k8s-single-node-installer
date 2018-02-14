@@ -1,16 +1,36 @@
 #!/usr/bin/env bash
 set -x
 #maintenance and dev mode
-wget http://169.254.169.254/latest/user-data
+#wget http://169.254.169.254/latest/user-data
+#if [ $? = 0 ]; then
+#  USER_DATA=$(cat user-data)
+#  if [ ${USER_DATA} = "maintenance_mode" ]; then
+#    exit 0
+#  elif [ ${USER_DATA} = "dev" ]; then
+#    export CF_HELM_CHANNEL=dev
+#  fi
+#fi
+
+if [ -f ./user-data ]; then
+  echo "user-data file exists"
+else
+  wget http://169.254.169.254/latest/user-data
+fi
+
+. ./user-data
+
 if [ $? = 0 ]; then
-  USER_DATA=$(cat user-data)
-  if [ ${USER_DATA} = "maintenance_mode" ]; then
+  if [[ ! -z $MAINTENANCE_MODE && $MAINTENANCE_MODE == true ]]; then
+    echo "Exiting script"
     exit 0
-  elif [ ${USER_DATA} = "dev" ]; then
+  fi
+  if [[ ! -z $CF_HELM_CHANNEL && $CF_HELM_CHANNEL == 'dev' ]]; then
     export CF_HELM_CHANNEL=dev
+    echo "Exporting CF_HELM_CHANNEL"
   fi
 fi
 
+BRANCH=${BRANCH:-master}
 WORKING_DIR="/opt/codefresh"
 LOG_DIR="${WORKING_DIR}/logs"
 
@@ -21,12 +41,12 @@ mkdir -p ${LOG_DIR}
 #docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
 
 #start bootstrap
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/images
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/bootstraper
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/cf-helm-ami
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/installer
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/flannel.yml
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/fix_cfui/local-storage.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/images
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/bootstraper
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/cf-helm-ami
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/installer
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/flannel.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/local-storage.yml
 
 chmod +x bootstraper
 chmod +x installer
