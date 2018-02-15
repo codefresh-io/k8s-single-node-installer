@@ -157,6 +157,10 @@ token: ${TOKEN}
 tokenTTL: "0"
 networking:
   podSubnet: ${POD_NETWORK_CIDR}
+apiServerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+controllerManagerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
 apiServerCertSANs:
 - ${APISERVER_CERT_SANS}
 EOF
@@ -169,6 +173,10 @@ token: ${TOKEN}
 tokenTTL: "0"
 networking:
   podSubnet: ${POD_NETWORK_CIDR}
+apiServerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
+controllerManagerExtraArgs:
+  "feature-gates": "PersistentLocalVolumes=true"
 EOF
 fi
 
