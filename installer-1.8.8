@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Global env variables / defaults
-: ${KUBERNETES_VERSION:=stable-1.9}
+: ${KUBERNETES_VERSION:=stable-1.8}
 
 # Functions library
 os_type() {
@@ -50,13 +50,13 @@ EOF
 }
 
 package_ubuntu() {
-	apt-get update && apt-get install -y apt-transport-https kubernetes-cni=0.6.0-00
+	apt-get update && apt-get install -y apt-transport-https kubernetes-cni=0.5.1-00
 	curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 	cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF
 	apt-get update
-	apt-get install -y kubelet=1.9.3-00 kubeadm=1.9.3-00
+	apt-get install -y kubelet=1.8.8-00 kubeadm=1.8.8-00
 }
 
 package_centos() {
@@ -72,7 +72,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
 EOF
 	setenforce 0
 	# TODO: Until kubeadm 1.7.2 will be released, we can fix the kubeadm.conf issue by installing kubeadm=1.7.0-00
-	yum install -y kubelet-1.9.3-0 kubeadm-1.9.3-0
+	yum install -y kubelet-1.8.8-0 kubeadm-1.8.8-0
 	systemctl enable kubelet && systemctl start kubelet
 }
 

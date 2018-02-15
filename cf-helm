@@ -7,7 +7,7 @@ readonly channel="${CF_HELM_CHANNEL:-stable}"
 
 readonly WD=$(dirname "$0")
 
-readonly HELM_VERSION=2.5.1
+readonly HELM_VERSION=2.8.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${channel}
 readonly DEFAULT_VALUES_FILE="${WD}/values.yml"
 
