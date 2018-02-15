@@ -9,7 +9,7 @@ readonly WORKING_DIR="/opt/codefresh"
 readonly VALUES_ARCHIVE="${WORKING_DIR}/valuesArchive"
 
 export HELM_HOME="/root/.helm"
-readonly HELM_VERSION=2.5.1
+readonly HELM_VERSION=2.8.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 readonly DEFAULT_VALUES_FILE="${WORKING_DIR}/values.yml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yml"
