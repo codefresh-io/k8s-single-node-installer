@@ -181,7 +181,7 @@ EOF
 fi
 
 # Phase 3 - initialize the Kubernetes cluster
-kubeadm init --config /etc/kubernetes/kubeadm.conf | tee kubeadm.log | grep -P '^\[' --color=never
+kubeadm init --config /etc/kubernetes/kubeadm.conf --ignore-preflight-errors cri | tee kubeadm.log | grep -P '^\[' --color=never
 
 # Remove master taints to make master schedulable for pods
 export KUBECONFIG=/etc/kubernetes/admin.conf
