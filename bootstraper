@@ -44,7 +44,7 @@ cfui:
   ${DOCKER_CFG_VAR}
 EOF
 
-  kubectl delete secret dockercfg
+#  kubectl delete secret dockercfg
 
   msg "Pulling images..."
   for image in $(cat ${IMAGES_LIST}); do
