@@ -32,14 +32,14 @@ if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
     --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
 
 # kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
-  DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}')
+  DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockerconfigjson' | awk -F '.' '{print $2}' | awk -F ' ' '{ print $2  }')
 
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
-${DOCKER_CFG_VAR}
+dockercfg: ${DOCKER_CFG_VAR}
 
 cfui:
-  ${DOCKER_CFG_VAR}
+  dockercfg: ${DOCKER_CFG_VAR}
 EOF
 
   kubectl delete secret dockercfg
