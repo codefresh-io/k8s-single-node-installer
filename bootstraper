@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 msg() { echo -e "\e[32mBOOTSTRAP INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
 err() { echo -e "\e[31mBOOTSTRAP ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
 
@@ -33,7 +33,9 @@ if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
 
 # kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
   DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}')
-
+  echo ##################
+  echo $DOCKER_CFG_VAR
+  echo ##################
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
 ${DOCKER_CFG_VAR}
@@ -59,5 +61,5 @@ while true; do
   TOKEN_VALUES=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/{next}1')
   echo "${TOKEN_VALUES}" > ${TOKEN_VALUES_YAML}.tmp
   mv ${TOKEN_VALUES_YAML}.tmp ${TOKEN_VALUES_YAML}
-  rm ${CREDENTIALS}
+#  rm ${CREDENTIALS}
 done
