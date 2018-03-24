@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -x
 # Global env variables / defaults
 : ${KUBERNETES_VERSION:=stable-1.8}
 
