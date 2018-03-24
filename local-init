@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+BRANCH=${BRANCH:-fix_cfui}
+WORKING_DIR="/opt/codefresh"
+LOG_DIR="${WORKING_DIR}/logs"
+
+mkdir -p ${LOG_DIR}
+
+#start bootstrap
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/images
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/bootstraper
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/cf-helm-ami
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/installer
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/flannel.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/local-storage.yml
+
+chmod +x bootstraper
+chmod +x installer
+chmod +x cf-helm-ami
+
+# install and run k8s
+EXTERNAL=true ./installer | tee >> ${LOG_DIR}/installer.log
+mkdir /root/.kube && cp /etc/kubernetes/admin.conf /root/.kube/config
+
+export KUBECONFIG=/root/.kube/config
+
+# run bootstraper
+${WORKING_DIR}/bootstraper >> ${LOG_DIR}/bootstraper.log 2>&1 &
+
+# run helm-updater
+${WORKING_DIR}/cf-helm-ami >> ${LOG_DIR}/cf-helm.log 2>&1 &
+
+# add to rc.local cf-helm-ami
+cat << EOF > /etc/rc.local
+#!/bin/bash
+export KUBECONFIG=/root/.kube/config
+${WORKING_DIR}/bootstraper >> ${LOG_DIR}/bootstraper.log 2>&1 &
+${WORKING_DIR}/cf-helm-ami >> ${LOG_DIR}/cf-helm.log 2>&1 &
+
+exit 0
+EOF
+
+# run wizard
+docker pull codefresh/enterprise-installer:master
+docker run --name wizard --restart="always" -d -p 8080:9000 -v /opt/codefresh:/opt/codefresh codefresh/enterprise-installer:master
+
