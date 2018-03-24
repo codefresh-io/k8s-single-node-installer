@@ -3,7 +3,7 @@
 msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
 err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
 
-readonly CHANNEL="${CF_HELM_CHANNEL:-stable}"
+readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 
 readonly WORKING_DIR="/opt/codefresh"
 readonly VALUES_ARCHIVE="${WORKING_DIR}/valuesArchive"
