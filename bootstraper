@@ -42,6 +42,9 @@ ${DOCKER_CFG_VAR}
 
 cfui:
   ${DOCKER_CFG_VAR}
+
+onboarding-status:
+  ${DOCKER_CFG_VAR}
 EOF
 
 #  kubectl delete secret dockercfg
