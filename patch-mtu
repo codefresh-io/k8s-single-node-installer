@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#
+
+msg() { echo -e "\e[32mINFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+warning() { echo -e "\e[33mWARNING [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+err() { echo -e "\e[31mERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
+
+builder_runner_patch(){
+msg "Checking $1 pod status"
+status=$(kubectl get po -l app=$1 --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -ncodefresh)
+  if [ "$status" == "Running" ]; then
+    msg "$1 pod status = $status"
+    msg "Patching $1 stateful set with --mtu parameter"
+    kubectl -ncodefresh patch statefulset $1 --type='json' -p '[{"op": "replace", "path": "/spec/template/spec/containers/0/command/2", "value": "rm -fv /var/run/docker.pid\nmkdir /var/run/codefresh\nmkdir -p /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/\ncp /etc/ssl/cf/ca.pem /etc/docker/certs.d/$(RUNTIME_LOCAL_REGISTRY_NAME)/ca.crt\ndockerd --mtu 1450\n"}]'
+    if [ $? == 0 ]; then
+      msg "Restarting $1 pod"
+      kubectl -ncodefresh scale statefulset $1 --replicas=0 \
+      && kubectl -ncodefresh scale statefulset $1 --replicas=1
+    fi
+  fi
+}
+
+BUILDER="cf-builder"
+RUNNER="cf-runner"
+
+builder_runner_patch $BUILDER
+builder_runner_patch $RUNNER

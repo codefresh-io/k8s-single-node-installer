@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+
+msg() { echo -e "\e[32mINFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+warning() { echo -e "\e[33mWARNING [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
+err() { echo -e "\e[31mERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
+
+readonly WORKING_DIR="/opt/codefresh"
+readonly DEFAULT_VALUES_FILE="${WORKING_DIR}/values.yml"
+
+
+
+
+kube-dns_deployment_status(){
+  while true; do
+    status=$(kubectl get po -l k8s-app=kube-dns --show-all=false -o=custom-columns=STATUS:.status.phase --no-headers=true -nkube-system)
+    [ "$status" == "Running" ] && msg "Kube-dns pod status = $status" && break
+    warning "Not ready..."
+    msg "Sleeping 10 seconds ..."
+      sleep 10 
+  done
+}
+
+getting_ip_address(){
+  local  ip_address=$(hostname -I | cut -d' ' -f1)
+  echo "$ip_address"
+}
+
+DOMAIN=$(grep domain $DEFAULT_VALUES_FILE | awk -F ' ' '{print $2}')
+
+msg "Checking if the given URL $DOMAIN can be resolved..."
+host $DOMAIN > /dev/null 2>&1
+
+if [ $? == 1 ]; then
+  warning "The given URL $DOMAIN hasn't registered with DNS system...\nWe need some additional kube-dns deployment configuration"
+  msg "Checking kube-dns pod status"
+  kube-dns_deployment_status
+
+  msg "Patching kube-dns deployment "
+    IP_ADDRESS=$(getting_ip_address)
+
+    if [[ -z "${IP_ADDRESS}" ]]; then
+      err "Cannot get vm's ip address"
+    fi
+
+    if [[ -n "${IP_ADDRESS}" ]]; then
+      kubectl -nkube-system get deployment kube-dns -o custom-columns=AVAILABLE:.status.availableReplicas --no-headers=true > /dev/null 2>&1
+      if [ $? == 0 ]; then
+      eval  "kubectl -nkube-system patch deployment kube-dns --type='json' -p '[{"op": "add", "path": "/spec/template/spec/containers/1/args/11", "value": "--address=/$DOMAIN/$IP_ADDRESS"}]'"
+      fi
+    fi
+fi
