@@ -19,6 +19,7 @@ wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$B
 chmod +x bootstraper
 chmod +x installer
 chmod +x cf-helm-ami
+chmod +x patch-*
 
 # install and run k8s
 EXTERNAL=true ./installer | tee >> ${LOG_DIR}/installer.log
