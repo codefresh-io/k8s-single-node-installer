@@ -13,6 +13,8 @@ wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$B
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/installer
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/local-storage.yml
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/patch-kube-dns
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/patch-mtu
 
 chmod +x bootstraper
 chmod +x installer
