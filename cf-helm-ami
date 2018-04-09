@@ -77,6 +77,8 @@ while true; do
   msg "Checking tiller status..."
   waitForHelm
 
+  MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
+
   TIMESTAMP=$(date +%F_%H-%M-%S)
   msg "Installing/Updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
@@ -86,7 +88,8 @@ while true; do
     --values "${DOCKER_CFG_YAML}" \
     --values "${TOKEN_VALUES_YAML}" \
     --no-hooks \
-    --set cfapi.redeploy=true
+    --set cfapi.redeploy=true \
+    ${MTU_VALUE}
 
   mkdir -p ${VALUES_ARCHIVE}
 
