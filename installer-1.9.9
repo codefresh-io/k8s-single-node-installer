@@ -146,6 +146,7 @@ IDENT_ME=$(curl ident.me)
 API_URL=${API_URL:-$IDENT_ME}
 APISERVER_CERT_SANS=${APISERVER_CERT_SANS:-$API_URL}
 POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
+NODENAME=$(hostname)
 
 # Enable alpha APIs
 if [[ "${EXTERNAL}" == "true" ]]; then
@@ -188,6 +189,7 @@ export KUBECONFIG=/etc/kubernetes/admin.conf
 
 kubectl taint nodes --all dedicated-
 kubectl taint nodes --all node-role.kubernetes.io/master-
+kubectl label nodes ${NODENAME} provisioner=local-volume
 
 # Install networking. Even in single-node mode, before the master node will become
 # available for scheduling (Ready), it should detect a network plugin configuration.
