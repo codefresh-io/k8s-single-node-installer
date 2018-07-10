@@ -19,7 +19,7 @@ if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
   TOKEN_VALUES=$(base64 -d ${CREDENTIALS} | awk '/^{/,/^}/{next}1')
 
   echo "${TOKEN_VALUES}" > ${TOKEN_VALUES_YAML}
-  rm ${CREDENTIALS}
+#  rm ${CREDENTIALS}
 
   msg "Docker login"
   docker login -u _json_key -p "${DOCKER_CFG_JSON}" https://gcr.io || err "Cannot login to docker registry"
@@ -45,7 +45,7 @@ onboarding-status:
   dockercfg: ${DOCKER_CFG_VAR}
 EOF
 
-  kubectl delete secret dockercfg
+#  kubectl delete secret dockercfg
 
   msg "Pulling images..."
   for image in $(cat ${IMAGES_LIST}); do
