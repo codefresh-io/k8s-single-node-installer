@@ -23,7 +23,7 @@ if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
 
   msg "Docker login"
   docker login -u _json_key -p "${DOCKER_CFG_JSON}" https://gcr.io || err "Cannot login to docker registry"
-
+<<COMMENT
   msg "Kubernetes secret"
   kubectl create secret docker-registry dockercfg \
     --docker-server=https://gcr.io \
@@ -32,17 +32,32 @@ if [ ! -d "$VALUES_ARCHIVE_DIR" ]; then
     --docker-email=admin@codefresh.io || err "Cannot create docker regestry secret (dockercfg)"
 
 # kubectl get secret dockercfg -oyaml | grep '\.dockercfg' | awk -F '.' '{print $2}' > ${DOCKER_CFG_YAML}
-  DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockerconfigjson' | awk -F '.' '{print $2}' | awk -F ' ' '{ print $2  }')
+#  DOCKER_CFG_VAR=$(kubectl get secret dockercfg -oyaml | grep '\.dockerconfigjson' | awk -F '.' '{print $2}' | awk -F ' ' '{ print $2  }')
+COMMENT
+  
+  DOCKER_CFG_VAR=$(echo -n "_json_key:${DOCKER_CFG_JSON}" | base64 -w0)
 
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
-dockercfg: ${DOCKER_CFG_VAR}
+#dockercfg: ${DOCKER_CFG_VAR}
+dockerconfigjson:
+  auths:
+    gcr.io:
+      auth: ${DOCKER_CFG_VAR}
 
 cfui:
-  dockercfg: ${DOCKER_CFG_VAR}
+#  dockercfg: ${DOCKER_CFG_VAR}
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
 
 onboarding-status:
-  dockercfg: ${DOCKER_CFG_VAR}
+#  dockercfg: ${DOCKER_CFG_VAR}
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
 EOF
 
 #  kubectl delete secret dockercfg
