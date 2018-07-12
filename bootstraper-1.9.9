@@ -39,21 +39,24 @@ COMMENT
 
   cat <<EOF >${DOCKER_CFG_YAML}
 ---
-#dockercfg: ${DOCKER_CFG_VAR}
 dockerconfigjson:
   auths:
     gcr.io:
       auth: ${DOCKER_CFG_VAR}
 
 cfui:
-#  dockercfg: ${DOCKER_CFG_VAR}
+  dockerconfigjson:
+    auths:
+      gcr.io:
+        auth: ${DOCKER_CFG_VAR}
+
+runtime-environment-manager:
   dockerconfigjson:
     auths:
       gcr.io:
         auth: ${DOCKER_CFG_VAR}
 
 onboarding-status:
-#  dockercfg: ${DOCKER_CFG_VAR}
   dockerconfigjson:
     auths:
       gcr.io:
