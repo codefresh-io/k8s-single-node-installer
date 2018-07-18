@@ -3,13 +3,13 @@
 msg() { echo -e "\e[32mCF-HELM INFO [$(date +%F_%H-%M-%S)] ---> $1\e[0m"; }
 err() { echo -e "\e[31mCF-HELM ERR [$(date +%F_%H-%M-%S)] ---> $1\e[0m" ; exit 1; }
 
-readonly CHANNEL="${CF_HELM_CHANNEL:-stable}"
+readonly CHANNEL="${CF_HELM_CHANNEL:-dev}"
 
 readonly WORKING_DIR="/opt/codefresh"
 readonly VALUES_ARCHIVE="${WORKING_DIR}/valuesArchive"
 
 export HELM_HOME="/root/.helm"
-readonly HELM_VERSION=2.5.1
+readonly HELM_VERSION=2.9.1
 readonly CODEFRESH_REPOSITORY=http://charts.codefresh.io/${CHANNEL}
 readonly DEFAULT_VALUES_FILE="${WORKING_DIR}/values.yml"
 readonly DOCKER_CFG_YAML="${WORKING_DIR}/dockercfg.yml"
@@ -77,6 +77,8 @@ while true; do
   msg "Checking tiller status..."
   waitForHelm
 
+  MTU_VALUE="--set global.mtu=$(cat /sys/class/net/cni0/mtu)"
+
   TIMESTAMP=$(date +%F_%H-%M-%S)
   msg "Installing/Updating Codefresh..."
   helm upgrade cf codefresh/codefresh \
@@ -86,7 +88,8 @@ while true; do
     --values "${DOCKER_CFG_YAML}" \
     --values "${TOKEN_VALUES_YAML}" \
     --no-hooks \
-    --set cfapi.redeploy=true
+    --set cfapi.redeploy=true \
+    ${MTU_VALUE}
 
   mkdir -p ${VALUES_ARCHIVE}
 

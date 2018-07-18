@@ -1,7 +1,6 @@
-gcr.io/codefresh-enterprise/codefresh/cluster-providers:v25
-gcr.io/codefresh-enterprise/codefresh/kube-integration:v49
-gcr.io/codefresh-enterprise/codefresh/cf-ui:v369
-gcr.io/codefresh-enterprise/codefresh/cf-api:v307
+gcr.io/codefresh-enterprise/codefresh/cluster-providers:v26
+gcr.io/codefresh-enterprise/codefresh/kube-integration:v57
+gcr.io/codefresh-enterprise/codefresh/cf-api:v351
 codefresh/cf-docker-pusher:v2
 codefresh/cf-docker-puller:v2
 codefresh/cf-docker-builder:v10
