@@ -30,14 +30,14 @@ mkdir -p ${LOG_DIR}
 
 #start bootstrap
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/images
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/bootstraper-1.9.9
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/bootstraper
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/cf-helm-ami
-wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/installer-1.9.9
+wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/installer
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/flannel.yml
 wget https://raw.githubusercontent.com/codefresh-io/k8s-single-node-installer/$BRANCH/local-storage.yml
 
-mv bootstraper-1.9.9 bootstraper && chmod +x bootstraper
-mv installer-1.9.9 installer && chmod +x installer
+chmod +x bootstraper
+chmod +x installer
 chmod +x cf-helm-ami
 
 # install and run k8s
